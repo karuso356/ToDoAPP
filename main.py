@@ -2,6 +2,7 @@ from fastapi import FastAPI, HTTPException
 from sqlmodel import Field, Session, SQLModel, select
 from typing import Optional, List
 from db import engine, create_db_and_tables, SessionDep 
+from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI()
 
@@ -12,8 +13,17 @@ def read_root():
 
 @app.get("/check-db")
 def check_db(session:SessionDep):
-    result = session.exec(select(User)).first()
+    result = session.exec(select(Task)).first()
     return{"db_status":result}
+
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # o especifica tu dominio S3 luego
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 
 # -------- MODELOS --------
@@ -74,5 +84,7 @@ def eliminar_tarea(id: int, session: SessionDep):
     session.delete(tarea)
     session.commit()
     return {"Ok": True}
+
+
 
 
